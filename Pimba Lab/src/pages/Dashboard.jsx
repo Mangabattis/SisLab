@@ -12,6 +12,7 @@ const Dashboard = () => {
   
   const [recentRequests, setRecentRequests] = useState([]);
   const userRole = sessionStorage.getItem('tipoUsuario');
+  console.log(userRole) //teste
 
   useEffect(() => {
     // Mocking API calls to fetch dashboard data

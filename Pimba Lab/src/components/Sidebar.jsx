@@ -17,7 +17,9 @@ const Sidebar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const location = useLocation();
   const navigate = useNavigate();
-  const userRole = localStorage.getItem('userRole') || 'professor';
+  // const userRole = localStorage.getItem('userRole') || 'professor';
+  const userRole = sessionStorage.getItem('tipoUsuario');
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -59,7 +61,7 @@ const Sidebar = () => {
     { path: '/installation/status', name: 'Status de Instalações', icon: <FaClipboardList /> },
   ];
 
-  const links = userRole === 'admin' ? adminLinks : professorLinks;
+  const links = userRole === 'ADMINISTRADOR' ? adminLinks : professorLinks;
 
   return (
     <>

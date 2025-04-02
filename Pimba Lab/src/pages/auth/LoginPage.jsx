@@ -30,17 +30,17 @@ const LoginPage = () => {
       });
 
       if (response.status === 200) {
-        const userEmail = formData.email
+        const userEmail = formData.email;
         localStorage.setItem('isAuthenticated', 'true');
 
         const userResponse = await axios.get('http://localhost:8080/usuarios/dados', {
-          params: {email: userEmail}
-        })
+          params: { email: userEmail },
+        });
 
-        if(userResponse.status === 200 && userResponse.data){
-          sessionStorage.setItem("tipoUsuario", userResponse.data.tipoUsuario)
-          sessionStorage.setItem("nome", userResponse.data.nome)
-          sessionStorage.setItem("escola", userResponse.data.escola)
+        if (userResponse.status === 200 && userResponse.data) {
+          sessionStorage.setItem("tipoUsuario", userResponse.data.tipoUsuario);
+          sessionStorage.setItem("nome", userResponse.data.nome);
+          sessionStorage.setItem("escola", userResponse.data.escola);
 
           navigate('/dashboard');
         }
@@ -51,27 +51,27 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full card">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-900">Sistema de Controle de Instalação</h2>
-          <p className="text-gray-600">Entre com suas credenciais para acessar</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 m-4">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-extrabold text-gray-800">Sistema de Controle de Instalação</h2>
+          <p className="text-gray-600 mt-2">Entre com suas credenciais para acessar</p>
         </div>
         
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
             {error}
           </div>
         )}
         
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className="label">
+          <div className="mb-5">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaUser className="text-gray-400" />
+                <FaUser className="text-indigo-500" />
               </div>
               <input
                 id="email"
@@ -80,19 +80,19 @@ const LoginPage = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="input pl-10"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="seu@email.com"
               />
             </div>
           </div>
           
           <div className="mb-6">
-            <label htmlFor="password" className="label">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Senha
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="text-gray-400" />
+                <FaLock className="text-indigo-500" />
               </div>
               <input
                 id="password"
@@ -101,33 +101,36 @@ const LoginPage = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="input pl-10"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="••••••••"
               />
             </div>
           </div>
           
-          <div className="mb-6">
-            <button type="submit" className="w-full btn btn-primary">
+          <div className="mt-8">
+            <button 
+              type="submit" 
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150"
+            >
               Entrar
             </button>
           </div>
           
-          <div className="text-center text-sm text-gray-600">
-            <p>
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-600">
               Não tem uma conta?{' '}
-              <Link to="/register" className="text-primary-600 hover:text-primary-800">
+              <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Registre-se
               </Link>
             </p>
           </div>
         </form>
         
-        <div className="mt-6 border-t border-gray-200 pt-4">
+        <div className="mt-8 border-t border-gray-200 pt-6">
           <p className="text-sm text-center text-gray-600">
             Para demonstração: <br />
-            Admin: admin@example.com / admin123 <br />
-            Professor: professor@example.com / prof123
+            <span className="font-medium">Admin:</span> admin@example.com / admin123 <br />
+            <span className="font-medium">Professor:</span> professor@example.com / prof123
           </p>
         </div>
       </div>
