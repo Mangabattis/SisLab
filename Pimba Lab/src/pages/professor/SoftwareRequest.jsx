@@ -12,31 +12,37 @@ const SoftwareRequest = () => {
   const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
-    // Mock API call to fetch available software
-    const mockSoftware = [
-      { id: 1, name: 'Visual Studio Code', version: '1.78.2' },
-      { id: 2, name: 'Adobe Photoshop', version: '24.0' },
-      { id: 3, name: 'MATLAB', version: 'R2023a' },
-      { id: 4, name: 'Python', version: '3.11.3' },
-      { id: 5, name: 'Unity', version: '2022.3' },
-      { id: 6, name: 'IntelliJ IDEA', version: '2023.1' },
-      { id: 7, name: 'AutoCAD', version: '2023' },
-      { id: 8, name: 'SPSS', version: '28.0' }
-    ];
-    
-    setAvailableSoftware(mockSoftware);
-    
-    // Mock API call to fetch available labs
-    const mockLabs = [
-      { id: 1, name: 'Laboratório 101', capacity: 30, available: true },
-      { id: 2, name: 'Laboratório 102', capacity: 25, available: true },
-      { id: 3, name: 'Laboratório 103', capacity: 20, available: true },
-      { id: 4, name: 'Laboratório 205', capacity: 40, available: true },
-      { id: 5, name: 'Laboratório 301', capacity: 30, available: false }
-    ];
-    
-    setAvailableLabs(mockLabs);
-    
+    //Softwares
+    const fetchSoftware = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/software/listar')
+        if(response.status !== 200){
+          throw new Error("Erro ao buscar laboratorio")
+        }
+        const softwares = await response.json()
+        setAvailableSoftware(softwares);
+      } catch (error) {
+        setFormErrors(error)
+      }
+    }
+
+    fetchSoftware()
+
+    //Laboratorios
+    const fetchLabs = async () => {
+      try{
+        const response = await fetch('http://localhost:8080/laboratorio/listar')
+        if(response.status !== 200){
+          throw new Error("Erro ao buscar laboratorio")
+        }
+        const labs = await response.json()
+        setAvailableLabs(labs);
+      }catch(error){
+        setFormErrors(error)
+      }
+    }
+    fetchLabs()
+
     // Set default date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
