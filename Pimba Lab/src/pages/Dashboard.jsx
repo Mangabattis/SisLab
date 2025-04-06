@@ -1,6 +1,6 @@
-// src/pages/Dashboard.jsx
 import { useState, useEffect } from 'react';
 import { FaDesktop, FaDownload, FaCheckCircle, FaExclamationTriangle, FaServer } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext'; // Importe o useAuth
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -11,8 +11,15 @@ const Dashboard = () => {
   });
   
   const [recentRequests, setRecentRequests] = useState([]);
-  const userRole = sessionStorage.getItem('tipoUsuario');
-  console.log(userRole) //teste
+  
+  // Usar o hook useAuth para obter o userRole consistente
+  const { userRole } = useAuth();
+  
+  // Mantenha a compatibilidade com o sessionStorage
+  const sessionUserRole = sessionStorage.getItem('tipoUsuario');
+  
+  // Determinar o papel do usuário de forma consistente
+  const effectiveRole = userRole || (sessionUserRole === 'ADMINISTRADOR' ? 'admin' : 'professor');
 
   useEffect(() => {
     // Mocking API calls to fetch dashboard data
@@ -60,7 +67,7 @@ const Dashboard = () => {
   }, []);
   
   // Filter requests based on user role
-  const filteredRequests = userRole === 'PROFESSOR' 
+  const filteredRequests = effectiveRole === 'professor' 
     ? recentRequests.filter(req => req.requestedBy === 'Maria Silva')  // Mock filter for professor
     : recentRequests;
 
@@ -115,7 +122,7 @@ const Dashboard = () => {
       <div className="card">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">
-            {userRole === 'ADMINISTRADOR' ? 'Solicitações Recentes' : 'Minhas Solicitações Recentes'}
+            {effectiveRole === 'admin' ? 'Solicitações Recentes' : 'Minhas Solicitações Recentes'}
           </h2>
         </div>
         
@@ -134,7 +141,7 @@ const Dashboard = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Data da Solicitação
                   </th>
-                  {userRole === 'ADMINISTRADOR' && (
+                  {effectiveRole === 'admin' && (
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Solicitado por
                     </th>
@@ -157,7 +164,7 @@ const Dashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{new Date(request.requestDate).toLocaleDateString()}</div>
                       </td>
-                      {userRole === 'ADMINISTRADOR' && (
+                      {effectiveRole === 'admin' && (
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{request.requestedBy}</div>
                         </td>
@@ -174,7 +181,7 @@ const Dashboard = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={userRole === 'ADMINISTRADOR' ? 5 : 4} className="px-6 py-4 text-center text-sm text-gray-500">
+                    <td colSpan={effectiveRole === 'admin' ? 5 : 4} className="px-6 py-4 text-center text-sm text-gray-500">
                       Nenhuma solicitação encontrada
                     </td>
                   </tr>
@@ -200,7 +207,7 @@ const Dashboard = () => {
                   <div className="text-sm text-gray-600">
                     <p>Laboratório: {request.labName}</p>
                     <p>Data: {new Date(request.requestDate).toLocaleDateString()}</p>
-                    {userRole === 'ADMINISTRADOR' && <p>Solicitado por: {request.requestedBy}</p>}
+                    {effectiveRole === 'admin' && <p>Solicitado por: {request.requestedBy}</p>}
                   </div>
                 </div>
               ))

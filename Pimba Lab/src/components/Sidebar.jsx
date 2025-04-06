@@ -17,9 +17,31 @@ const Sidebar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const location = useLocation();
   const navigate = useNavigate();
-  // const userRole = localStorage.getItem('userRole') || 'professor';
-  const userRole = sessionStorage.getItem('tipoUsuario');
-
+  
+  // Obter o userRole de ambas as fontes para garantir compatibilidade
+  const storedUserRole = localStorage.getItem('userRole');
+  const sessionUserRole = sessionStorage.getItem('tipoUsuario');
+  
+  // Use userRole do localStorage se disponível, senão use do sessionStorage
+  const userRole = storedUserRole || (sessionUserRole === 'ADMINISTRADOR' ? 'admin' : 'professor');
+  
+  // Sincronizar os storages para garantir consistência
+  useEffect(() => {
+    // Se temos valores diferentes nos storages, vamos sincronizar
+    if (storedUserRole && sessionUserRole) {
+      if ((storedUserRole === 'admin' && sessionUserRole !== 'ADMINISTRADOR') ||
+          (storedUserRole === 'professor' && sessionUserRole !== 'PROFESSOR')) {
+        // Sincroniza com o formato correto
+        sessionStorage.setItem('tipoUsuario', storedUserRole === 'admin' ? 'ADMINISTRADOR' : 'PROFESSOR');
+      }
+    } else if (storedUserRole) {
+      // Se só tem no localStorage, copia para sessionStorage
+      sessionStorage.setItem('tipoUsuario', storedUserRole === 'admin' ? 'ADMINISTRADOR' : 'PROFESSOR');
+    } else if (sessionUserRole) {
+      // Se só tem no sessionStorage, copia para localStorage
+      localStorage.setItem('userRole', sessionUserRole === 'ADMINISTRADOR' ? 'admin' : 'professor');
+    }
+  }, [storedUserRole, sessionUserRole]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -44,9 +66,11 @@ const Sidebar = () => {
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
+    sessionStorage.removeItem('tipoUsuario');
     navigate('/login');
   };
 
+  // Garantir que as rotas usem o formato correto, mapeando para as rotas definidas no router
   const adminLinks = [
     { path: '/dashboard', name: 'Dashboard', icon: <FaHome /> },
     { path: '/software/manage', name: 'Gerenciar Softwares', icon: <FaDesktop /> },
@@ -61,7 +85,8 @@ const Sidebar = () => {
     { path: '/installation/status', name: 'Status de Instalações', icon: <FaClipboardList /> },
   ];
 
-  const links = userRole === 'ADMINISTRADOR' ? adminLinks : professorLinks;
+  // Usar 'admin' como a verificação padrão, não 'ADMINISTRADOR'
+  const links = userRole === 'admin' ? adminLinks : professorLinks;
 
   return (
     <>

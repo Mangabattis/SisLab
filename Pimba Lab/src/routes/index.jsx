@@ -1,4 +1,3 @@
-// src/routes/index.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import DashboardLayout from '../layouts/DashboardLayout';
@@ -23,6 +22,10 @@ import SoftwareRequest from '../pages/professor/SoftwareRequest';
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { isAuthenticated, userRole, loading } = useAuth();
   
+  // Handle synchronization with sessionStorage for legacy code compatibility
+  const sessionUserRole = sessionStorage.getItem('tipoUsuario');
+  const effectiveRole = userRole || (sessionUserRole === 'ADMINISTRADOR' ? 'admin' : 'professor');
+  
   if (loading) {
     return <div className="flex h-screen items-center justify-center">Carregando...</div>;
   }
@@ -31,7 +34,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     return <Navigate to="/login" />;
   }
   
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+  if (allowedRoles.length > 0 && !allowedRoles.includes(effectiveRole)) {
     return <Navigate to="/dashboard" />;
   }
   
