@@ -1,6 +1,7 @@
 // src/pages/professor/SoftwareRequest.jsx
 import { useState, useEffect } from 'react';
 import { FaPlus, FaTrash, FaCheck } from 'react-icons/fa';
+import axios from 'axios'
 
 const SoftwareRequest = () => {
   const [availableSoftware, setAvailableSoftware] = useState([]);
@@ -9,6 +10,7 @@ const SoftwareRequest = () => {
   const [selectedLab, setSelectedLab] = useState('');
   const [usageDate, setUsageDate] = useState('');
   const [requestStatus, setRequestStatus] = useState(null);
+
   const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
@@ -82,31 +84,51 @@ const SoftwareRequest = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+  
     if (!validateForm()) return;
+
+    const payload ={
+      laboratorioId: selectedLab,
+      softwareIds: selectedSoftware.map(s => s.id),
+      dataUso: usageDate
+    }
+  
+    try {
+      const response = await axios.post('http://localhost:8080/solicitacao/criar', payload);
     
-    // Mock API call to check if software is already installed
-    const isAlreadyInstalled = Math.random() < 0.3; // 30% chance software is already installed
+      if (response.status === 200) {
+        const successMessage = 'Solicitação de instalação enviada com sucesso. O laboratório ficará indisponível durante o processo de instalação.';
     
-    if (isAlreadyInstalled) {
+        setRequestStatus({
+          success: true,
+          message: successMessage
+        });
+    
+        setSelectedSoftware([]);
+        setSelectedLab('');
+        setUsageDate(null); // se tiver campo de data
+      } else {
+        setRequestStatus({
+          success: false,
+          message: 'Erro inesperado na solicitação.'
+        });
+      }
+    
+    } catch (error) {
+      console.log('Erro completo:', error);
+    
+      let message = 'Erro ao enviar solicitação.';
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      }
+    
       setRequestStatus({
         success: false,
-        message: 'Um ou mais softwares selecionados já estão instalados neste laboratório.'
+        message
       });
-      return;
     }
-    
-    // Mock successful request
-    setRequestStatus({
-      success: true,
-      message: 'Solicitação de instalação enviada com sucesso. O laboratório ficará indisponível durante o processo de instalação.'
-    });
-    
-    // Reset form after successful submission
-    setSelectedSoftware([]);
-    setSelectedLab('');
   };
 
   return (
