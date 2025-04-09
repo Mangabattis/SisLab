@@ -38,6 +38,7 @@ const LoginPage = () => {
         });
 
         if (userResponse.status === 200 && userResponse.data) {
+          sessionStorage.setItem("id", userResponse.data.id)
           sessionStorage.setItem("tipoUsuario", userResponse.data.tipoUsuario);
           sessionStorage.setItem("nome", userResponse.data.nome);
           sessionStorage.setItem("escola", userResponse.data.escola);

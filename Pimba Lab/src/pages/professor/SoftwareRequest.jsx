@@ -13,6 +13,9 @@ const SoftwareRequest = () => {
 
   const [formErrors, setFormErrors] = useState({});
 
+  const idProfessor = sessionStorage.getItem('id');
+  const idAdministrador = sessionStorage.getItem('id') //caso precise futuramente(e vai precisar kkkk)
+
   useEffect(() => {
     //Softwares
     const fetchSoftware = async () => {
@@ -92,7 +95,9 @@ const SoftwareRequest = () => {
     const payload ={
       laboratorioId: selectedLab,
       softwareIds: selectedSoftware.map(s => s.id),
-      dataUso: usageDate
+      dataUso: usageDate,
+      professorId: idProfessor
+
     }
   
     try {

@@ -21,6 +21,9 @@ const Dashboard = () => {
   // Determinar o papel do usuário de forma consistente
   const effectiveRole = userRole || (sessionUserRole === 'ADMINISTRADOR' ? 'admin' : 'professor');
 
+  const professorId = sessionStorage.getItem("id");
+  const idAdministrador = sessionStorage.getItem('id') //Usar futuramente
+
   useEffect(() => {
     // Mocking API calls to fetch dashboard data
     setStats({
