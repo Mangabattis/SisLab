@@ -1,78 +1,45 @@
 import { useState, useEffect } from 'react';
 import { FaDesktop, FaDownload, FaCheckCircle, FaExclamationTriangle, FaServer } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext'; // Importe o useAuth
+import axios from 'axios'
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({
-    totalSoftware: 0,
-    pendingInstallations: 0,
-    completedInstallations: 0,
-    availableLabs: 0
-  });
-  
+  const [stats, setStats] = useState({ totalSoftware: 0, pendingInstallations: 0, completedInstallations: 0, availableLabs: 0 });
   const [recentRequests, setRecentRequests] = useState([]);
   
-  // Usar o hook useAuth para obter o userRole consistente
   const { userRole } = useAuth();
-  
-  // Mantenha a compatibilidade com o sessionStorage
   const sessionUserRole = sessionStorage.getItem('tipoUsuario');
-  
-  // Determinar o papel do usuário de forma consistente
   const effectiveRole = userRole || (sessionUserRole === 'ADMINISTRADOR' ? 'admin' : 'professor');
 
   const professorId = sessionStorage.getItem("id");
-  const idAdministrador = sessionStorage.getItem('id') //Usar futuramente
 
   useEffect(() => {
-    // Mocking API calls to fetch dashboard data
-    setStats({
-      totalSoftware: 34,
-      pendingInstallations: 5,
-      completedInstallations: 28,
-      availableLabs: 8
-    });
-    
-    setRecentRequests([
-      {
-        id: 1,
-        softwareName: 'Adobe Photoshop',
-        labName: 'Lab 101',
-        requestDate: '2025-03-15',
-        status: 'pending',
-        requestedBy: 'Maria Silva'
-      },
-      {
-        id: 2,
-        softwareName: 'MATLAB R2023a',
-        labName: 'Lab 205',
-        requestDate: '2025-03-14',
-        status: 'completed',
-        requestedBy: 'João Santos'
-      },
-      {
-        id: 3,
-        softwareName: 'Visual Studio 2022',
-        labName: 'Lab 103',
-        requestDate: '2025-03-10',
-        status: 'completed',
-        requestedBy: 'Ana Oliveira'
-      },
-      {
-        id: 4,
-        softwareName: 'Python 3.11',
-        labName: 'Lab 102',
-        requestDate: '2025-03-08',
-        status: 'pending',
-        requestedBy: 'Carlos Mendes'
+    const fetchRequests = async () => {
+      try {
+        let response;
+        if (effectiveRole === 'admin') {
+          response = await axios.get('http://localhost:8080/solicitacao/listarTodos');
+        } else {
+          response = await axios.get(`http://localhost:8080/solicitacao/listar/professor/${professorId}`);
+        }
+        setRecentRequests(response.data);
+        console.log(response.data)
+        
+        setStats({
+          totalSoftware: 0,
+          pendingInstallations: 0,
+          completedInstallations: 0,
+          availableLabs: 0
+        });
+      } catch (error) {
+        console.error('Erro ao buscar as solicitações:', error);
       }
-    ]);
-  }, []);
-  
-  // Filter requests based on user role
-  const filteredRequests = effectiveRole === 'professor' 
-    ? recentRequests.filter(req => req.requestedBy === 'Maria Silva')  // Mock filter for professor
-    : recentRequests;
+    };
+
+    fetchRequests();
+  }, [effectiveRole, professorId]);
+
+  const filteredRequests = recentRequests;
 
   return (
     <div>
@@ -159,17 +126,17 @@ const Dashboard = () => {
                   filteredRequests.map((request) => (
                     <tr key={request.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{request.softwareName}</div>
+                        <div className="text-sm font-medium text-gray-900">{request.softwareNomes}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{request.labName}</div>
+                        <div className="text-sm text-gray-900">{request.laboratorioNome}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{new Date(request.requestDate).toLocaleDateString()}</div>
+                        <div className="text-sm text-gray-900">{new Date(request.dataUso).toLocaleDateString()}</div>
                       </td>
                       {effectiveRole === 'admin' && (
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{request.requestedBy}</div>
+                          <div className="text-sm text-gray-900">{request.solicitadoPor}</div>
                         </td>
                       )}
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -177,7 +144,7 @@ const Dashboard = () => {
                           ${request.status === 'completed' 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-yellow-100 text-yellow-800'}`}>
-                          {request.status === 'completed' ? 'Concluído' : 'Pendente'}
+                          {request.status === 'CONCLUIDO' ? 'Concluído' : 'Pendente'}
                         </span>
                       </td>
                     </tr>

@@ -56,11 +56,7 @@ const SoftwareRequest = () => {
 
   const addSoftwareToSelection = (softwareId) => {
     const software = availableSoftware.find(s => s.id === softwareId);
-    
-    // Check if already added
-    if (selectedSoftware.some(s => s.id === softwareId)) return;
-    
-    setSelectedSoftware([...selectedSoftware, software]);
+    setSelectedSoftware([software]); // substitui qualquer outro software
   };
 
   const removeSoftwareFromSelection = (softwareId) => {
@@ -179,17 +175,21 @@ const SoftwareRequest = () => {
                       <div className="text-sm text-gray-900">{software.version}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => addSoftwareToSelection(software.id)}
-                        disabled={selectedSoftware.some(s => s.id === software.id)}
-                        className={`p-1 rounded-full ${
-                          selectedSoftware.some(s => s.id === software.id)
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-green-100 text-green-600 hover:bg-green-200'
-                        }`}
-                      >
-                        <FaPlus />
-                      </button>
+                    <button
+                      onClick={() => addSoftwareToSelection(software.id)}
+                      disabled={
+                        selectedSoftware.length > 0 && !selectedSoftware.some(s => s.id === software.id)
+                      }
+                      className={`p-1 rounded-full ${
+                        selectedSoftware.some(s => s.id === software.id)
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : selectedSoftware.length > 0
+                        ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                        : 'bg-green-100 text-green-600 hover:bg-green-200'
+                      }`}
+                    >
+                      <FaPlus />
+                    </button>
                     </td>
                   </tr>
                 ))}
