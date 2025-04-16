@@ -204,45 +204,54 @@ const SoftwareRequest = () => {
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Detalhes da Solicitação</h2>
             
             <div className="mb-4">
-              <label htmlFor="lab" className="label">Laboratório</label>
+              <label htmlFor="lab" className="text-black bg-white border border-gray-300 rounded px-1 py-1">Laboratório: </label>
               <select
-                id="lab"
-                value={selectedLab}
-                onChange={(e) => setSelectedLab(e.target.value)}
-                className={`input ${formErrors.lab ? 'border-red-500' : ''}`}
-              >
-                <option value="">Selecione um laboratório</option>
-                {availableLabs
-                  .filter(lab => lab.available)
-                  .map(lab => (
-                    <option key={lab.id} value={lab.id}>
-                      {lab.name} (Capacidade: {lab.capacity})
-                    </option>
-                  ))
-                }
-              </select>
+            id="lab"
+          value={selectedLab}
+           onChange={(e) => setSelectedLab(e.target.value)}
+           className="text-black bg-white border border-gray-300 rounded px-1 py-1 ml-2 "
+           >
+        <option value="">Selecione um laboratório</option>
+          {availableLabs
+            .filter(lab => lab.available)
+            .map(lab => (
+            <option key={lab.id} value={lab.id}>
+             {lab.name} (Capacidade: {lab.capacity})
+            </option>
+          ))}
+            </select>
               {formErrors.lab && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.lab}</p>
               )}
             </div>
             
             <div className="mb-4">
-              <label htmlFor="usageDate" className="label">Data de Utilização</label>
-              <input
-                type="date"
-                id="usageDate"
-                value={usageDate}
-                onChange={(e) => setUsageDate(e.target.value)}
-                className={`input ${formErrors.date ? 'border-red-500' : ''}`}
-                min={new Date().toISOString().split('T')[0]}
-              />
+            <label htmlFor="lab" className="text-black bg-white border border-gray-300 rounded px-1 py-1">Data de Utilização: </label>
+            <div className="relative inline-block">
+ <div className="relative inline-block">
+ <div className="relative inline-block">
+  <input
+    type="date"
+    id="usageDate"
+    value={usageDate}
+    onChange={(e) => setUsageDate(e.target.value)}
+    className={`text-black bg-white border border-gray-300 rounded px-1 py-0 pr-0 ml-1 shadow-sm ${formErrors.date ? 'border-red-500' : ''}`}
+    min={new Date().toISOString().split('T')[0]}
+  />
+
+  <span className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500 text-ml">
+    ▼
+  </span>
+</div>
+</div>
+</div>              
               {formErrors.date && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.date}</p>
               )}
             </div>
             
             <div className="mb-4">
-              <label className="label">Softwares Selecionados</label>
+              <label htmlFor="lab" className="text-black bg-white border border-gray-300 rounded px-1 py-1">Softwares Selecionados:</label>
               {formErrors.software && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.software}</p>
               )}
@@ -252,8 +261,8 @@ const SoftwareRequest = () => {
                   {selectedSoftware.map((software) => (
                     <li key={software.id} className="flex justify-between items-center px-4 py-3">
                       <div>
-                        <span className="font-medium">{software.name}</span>
-                        <span className="text-sm text-gray-500 ml-2">v{software.version}</span>
+                        <span className="font-medium text-black">{software.name}</span>
+                        <span className="text-sm text-black ml-2">v{software.version}</span>
                       </div>
                       <button
                         type="button"
@@ -293,7 +302,7 @@ const SoftwareRequest = () => {
                     <li key={lab.id} className="py-3">
                       <div className="flex items-center">
                         <div className="h-3 w-3 rounded-full bg-red-500 mr-2"></div>
-                        <span className="font-medium">{lab.name}</span>
+                        <span className="font-medium text-black">{lab.name}</span>
                       </div>
                       <p className="text-sm text-gray-500 mt-1">
                         Temporariamente indisponível devido a instalações em andamento
