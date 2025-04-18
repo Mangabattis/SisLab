@@ -7,57 +7,85 @@ export const AuthProvider = ({ children }) => {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check if user is authenticated in localStorage
-    const storedIsAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  // Função central de sincronização entre localStorage e sessionStorage
+  const synchronizeStorageState = () => {
+    const storedIsAuth = localStorage.getItem('isAuthenticated') === 'true';
     const storedUserRole = localStorage.getItem('userRole');
     const sessionUserRole = sessionStorage.getItem('tipoUsuario');
     
-    // Determine which role to use based on available data
+    let effectiveAuth = storedIsAuth;
     let effectiveRole = storedUserRole;
     
-    // If we have a session role but no localStorage role, convert and use it
+    // Lógica para sincronizar entre os storages
     if (!effectiveRole && sessionUserRole) {
+      // Se não há role no localStorage mas há no sessionStorage
       effectiveRole = sessionUserRole === 'ADMINISTRADOR' ? 'admin' : 'professor';
+      effectiveAuth = true;
+      
+      // Atualiza localStorage
+      localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userRole', effectiveRole);
+    } else if (effectiveRole) {
+      // Se há role no localStorage, verifica se sessionStorage está correto
+      const expectedSessionRole = effectiveRole === 'admin' ? 'ADMINISTRADOR' : 'PROFESSOR';
+      
+      if (sessionUserRole !== expectedSessionRole) {
+        // Atualiza sessionStorage
+        sessionStorage.setItem('tipoUsuario', expectedSessionRole);
+      }
     }
     
-    setIsAuthenticated(storedIsAuthenticated);
+    // Atualiza os estados do React
+    setIsAuthenticated(effectiveAuth);
     setUserRole(effectiveRole);
-    setLoading(false);
     
-    // Synchronize session storage if needed
-    if (effectiveRole && (!sessionUserRole || 
-        (effectiveRole === 'admin' && sessionUserRole !== 'ADMINISTRADOR') ||
-        (effectiveRole === 'professor' && sessionUserRole !== 'PROFESSOR'))) {
-      sessionStorage.setItem('tipoUsuario', effectiveRole === 'admin' ? 'ADMINISTRADOR' : 'PROFESSOR');
-    }
+    return { isAuth: effectiveAuth, role: effectiveRole };
+  };
+
+  // Inicialização do estado
+  useEffect(() => {
+    const state = synchronizeStorageState();
+    console.log('Auth state initialized:', state);
+    setLoading(false);
   }, []);
 
   const login = (role) => {
-    // Normalize role to our standard format
+    // Normaliza o formato do role
     const normalizedRole = role === 'ADMINISTRADOR' ? 'admin' : 
                           role === 'PROFESSOR' ? 'professor' : role;
     
     setIsAuthenticated(true);
     setUserRole(normalizedRole);
+    
+    // Armazena em ambos os storages
     localStorage.setItem('isAuthenticated', 'true');
     localStorage.setItem('userRole', normalizedRole);
-    
-    // Also set in sessionStorage with the expected format
     sessionStorage.setItem('tipoUsuario', normalizedRole === 'admin' ? 'ADMINISTRADOR' : 'PROFESSOR');
+    
+    console.log('Login successful:', { role: normalizedRole });
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     setUserRole(null);
+    
+    // Limpa ambos os storages
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userRole');
     sessionStorage.removeItem('tipoUsuario');
+    
+    console.log('Logout successful');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userRole, login, logout, loading }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      userRole, 
+      login, 
+      logout, 
+      loading,
+      synchronizeStorageState
+    }}>
       {children}
     </AuthContext.Provider>
   );

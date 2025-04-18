@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 
 // Auth Pages
@@ -20,22 +21,41 @@ import SoftwareRequest from '../pages/professor/SoftwareRequest';
 
 // Protected route component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const { isAuthenticated, userRole, loading } = useAuth();
+  const { isAuthenticated, userRole, loading, synchronizeStorageState } = useAuth();
+  const location = useLocation();
+  
+  // Força a sincronização do estado a cada verificação de rota
+  useEffect(() => {
+    synchronizeStorageState();
+  }, [synchronizeStorageState]);
   
   // Handle synchronization with sessionStorage for legacy code compatibility
   const sessionUserRole = sessionStorage.getItem('tipoUsuario');
   const effectiveRole = userRole || (sessionUserRole === 'ADMINISTRADOR' ? 'admin' : 'professor');
+  
+  console.log("Protected Route:", {
+    path: location.pathname,
+    isAuthenticated,
+    userRole,
+    sessionUserRole,
+    effectiveRole,
+    allowedRoles,
+    hasAccess: allowedRoles.length === 0 || allowedRoles.includes(effectiveRole)
+  });
   
   if (loading) {
     return <div className="flex h-screen items-center justify-center">Carregando...</div>;
   }
   
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
   
-  if (allowedRoles.length > 0 && !allowedRoles.includes(effectiveRole)) {
-    return <Navigate to="/dashboard" />;
+  const hasAccess = allowedRoles.length === 0 || allowedRoles.includes(effectiveRole);
+  
+  if (!hasAccess) {
+    console.log(`Acesso negado: ${effectiveRole} tentando acessar rota que requer ${allowedRoles.join(' ou ')}`);
+    return <Navigate to="/dashboard" replace />;
   }
   
   return children;
